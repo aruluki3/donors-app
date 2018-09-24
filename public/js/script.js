@@ -12,7 +12,14 @@ function getcamps(){
     if (this.readyState == 4 && this.status == 200) {
       var data = JSON.parse(this.responseText);
       for(i = 0; i < data.length; i++){
-        document.getElementById('cont').innerHTML += "<p>"+data[i].name+"</p> <p>"+data[i].address+"</p> <p>"+data[i].sponsor.name+"</p> <p>"+data[i].sponsor.number+"</p> <p>"+data[i].date+"</p> <p>"+data[i].time+"</p>" + "<br><hr><br>";
+            document.getElementById('cont').innerHTML += "<p id='id"+i+"'>"+data[i]._id+
+            "</p><br><input class='form-control' id='campname"+[i]+"' type='text' value="+data[i].name+
+            "><br><textarea class='form-control' id='campaddress"+[i]+"'>"+data[i].address+
+            "</textarea><br> <input class='form-control' id='campsponname"+[i]+"' type='text' value="+data[i].sponsor.name+
+            "><br> <input class='form-control' id='campsponnum"+[i]+"' type='number' value="+data[i].sponsor.number+
+            "><br> <input class='form-control' id='campdate"+[i]+"' value="+data[i].date+
+            " type='date'><br><input class='form-control' type='time' id='camptime"+[i]+"' value="+data[i].time+
+            "><br><input class='form-control' type='button' value='edit' onclick='editit(id"+[i]+".innerHTML, "+i+")'><br><hr><br>";
       }
     }
   }
@@ -20,32 +27,42 @@ function getcamps(){
   xhttp.send();
 }
 
+function editit(x, y){
+  console.log(y);
+  var name = document.getElementById('campname'+y).value;
+  var address = document.getElementById('campaddress'+y).value;
+  var sponsor_name = document.getElementById('campsponname'+y).value;
+  var sponsor_numb = document.getElementById('campsponnum'+y).value;
+  var date = document.getElementById('campdate'+y).value;
+  var time = document.getElementById('camptime'+y).value;
 
-function saveEdit(){
-  var editCamp = document.getElementById("edit-camp").value;
-  var editAddress = document.getElementById("edit-address").value;
-  var editSponname = document.getElementById("edit-sponname").value;
-  var editSponnumber = document.getElementById("edit-sponnumber").value;
-  var editSpondate = document.getElementById("edit-spondate").value;
-  var editSpontime = document.getElementById("edit-spontime").value;
-  var id = document.getElementById ( "id1" ).innerText;
+  var params = "name="+name+"&address="+address+"&sponsor_name="+sponsor_name+"&sponsor_numb="+sponsor_numb+"&spondate="+date+"&spontime="+time;
 
-  var params = "&camp="+editcamp+"&address="+editAddress+"&sponname="+editSponname+"&sponnumber="editSponnumber+"&spondate="editSpondate+"&spontime="editSpontime;
+  console.log(params);
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = ()=>{
+    if (this.readyState == 4 && this.status == 200) {
+      // getcamps();
+    }
+  }
+
+  xhttp.open("PUT", baseUrl+"/updatecamps/"+x, true);
+  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xhttp.send(params);
+}
+
+function searchit(){
+  var key = document.getElementById('blood_key').value;
 
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       var data = JSON.parse(this.responseText);
-      document.getElementById("camp").innerHTML = data.camp;
-      document.getElementById("address").innerHTML =  data.address;
-      document.getElementById("sponname").innerHTML = data.sponname;
-      document.getElementById("sponnumber").innerHTML =  data.sponnumber;
-      document.getElementById("spondate").innerHTML = data.spondate;
-      document.getElementById("spontime").innerHTML =  data.spontime;
-      document.getElementById('spoiler').style.display = 'none';
+      for(i = 0; i < data.length; i++){
+        console.log(data[i]);// manipulate from here <--
+      }
     }
-  };
-  xhttp.open("PUT", baseUrl+"notes/"+id, true);
-  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-  xhttp.send(params);
+  }
+  xhttp.open("GET", baseUrl+"/getblood/"+key, true);
+  xhttp.send();
 }

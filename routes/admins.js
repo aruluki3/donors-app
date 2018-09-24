@@ -5,11 +5,13 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
 var Admin = require('../models/admin');
+var Donor = require('../models/donor');
 var Camp = require('../models/camp');
 
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/loginapp');
 var db = mongoose.connection;
+var ObjectID = require('mongodb').ObjectID;
 
 router.get('/admin', function(req, res){
   res.render('admin');
@@ -81,8 +83,40 @@ router.get('/viewcamps', (req, res)=>{
   res.render('viewcamp');
 });
 
-router.put('/', (req, res)=>{
+router.put('/updatecamps/:id', (req, res)=>{
+  var id = req.params.id;
 
+  var name = req.body.name;
+  var address = req.body.address;
+  var sponsor_name = req.body.sponsor_name;
+  var sponsor_numb = req.body.sponsor_numb;
+  var date = req.body.spondate;
+  var time = req.body.spontime;
+
+
+  const clog = { '_id': new ObjectID(id) };
+  console.log("this +" + id);
+
+  const changes = { 'name' : name, 'address' : address, 'sponsor.name' : sponsor_name, 'sponsor.number' : sponsor_numb, 'date' : date, 'time' : time };
+  Camp.update(clog, changes, (err, result) => {
+    if (err) {
+      throw err;
+      // res.send({'error':'An error has occurred'});
+    } else {
+      res.send(result);
+    }
+  });
 });
 
+router.get('/getblood/:key', (req, res)=>{
+  db.collection('donors').find({  'bloodgroup' : req.params.key }).toArray((err, donor)=>{
+    if(err) throw err;
+    if(!donor){
+      console.log("no camps details avaialble");
+    }
+    else{
+      res.send(donor);
+    }
+  });
+})
 module.exports = router;
